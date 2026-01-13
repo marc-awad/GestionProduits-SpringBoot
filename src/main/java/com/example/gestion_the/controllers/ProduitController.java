@@ -67,7 +67,7 @@ public class ProduitController {
     @GetMapping("/nouveau")
     public String afficherFormulaireAjout(Model model) {
         model.addAttribute("produit", new Produit());
-        return "produits/formulaire";
+        return "formulaire";
     }
 
     @GetMapping("/modifier/{id}")
@@ -75,7 +75,7 @@ public class ProduitController {
         Produit produit = produitService.getProduitById(id)
                 .orElseThrow(() -> new RuntimeException("Produit non trouvé avec l'id : " + id));
         model.addAttribute("produit", produit);
-        return "produits/formulaire";
+        return "formulaire";
     }
 
     @PostMapping("/sauvegarder")
@@ -85,7 +85,7 @@ public class ProduitController {
                                      Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "produits/formulaire";
+            return "formulaire";
         }
 
         try {
