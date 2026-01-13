@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,21 +31,26 @@ public class ProduitController {
             @RequestParam(required = false, defaultValue = "asc") String direction,
             Model model) {
 
-        List<Produit> produits;
+        List<Produit> produits = new ArrayList<>();
 
-        if (search != null && !search.trim().isEmpty() && typeFilter != null && !typeFilter.trim().isEmpty()) {
-            produits = produitService.findByNomAndTypeThe(search, typeFilter);
-        } else if (search != null && !search.trim().isEmpty()) {
-            produits = produitService.findByNom(search);
-        } else if (typeFilter != null && !typeFilter.trim().isEmpty()) {
-            produits = produitService.findByTypeThe(typeFilter);
-        } else {
-            produits = produitService.getAllProduits();
-        }
+        try {
+            if (search != null && !search.trim().isEmpty() && typeFilter != null && !typeFilter.trim().isEmpty()) {
+                produits = produitService.findByNomAndTypeThe(search, typeFilter);
+            } else if (search != null && !search.trim().isEmpty()) {
+                produits = produitService.findByNom(search);
+            } else if (typeFilter != null && !typeFilter.trim().isEmpty()) {
+                produits = produitService.findByTypeThe(typeFilter);
+            } else {
+                produits = produitService.getAllProduits();
+            }
 
-        if (sortBy != null && !sortBy.trim().isEmpty()) {
-            boolean ascending = "asc".equalsIgnoreCase(direction);
-            produits = sortProduits(produits, sortBy, ascending);
+            if (sortBy != null && !sortBy.trim().isEmpty()) {
+                boolean ascending = "asc".equalsIgnoreCase(direction);
+                produits = sortProduits(produits, sortBy, ascending);
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des produits : " + e.getMessage());
+            model.addAttribute("errorMessage", "Erreur lors du chargement des produits");
         }
 
         model.addAttribute("produits", produits);
@@ -53,7 +59,9 @@ public class ProduitController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
 
-        return "produits/liste";
+        System.out.println("DEBUG: Nombre de produits chargés = " + produits.size());
+
+        return "index";
     }
 
     @GetMapping("/nouveau")
