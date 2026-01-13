@@ -36,9 +36,20 @@
     <!-- Barre supérieure -->
     <div class="top-bar">
         <h2><i class="fas fa-list"></i> Liste des Produits</h2>
-        <a href="/produits/nouveau" class="btn btn-success">
-            <i class="fas fa-plus-circle"></i> Ajouter un produit
-        </a>
+        <div class="top-bar-actions">
+            <a th:href="@{/produits/export(
+                    search=${search},
+                    typeFilter=${typeFilter},
+                    sortBy=${sortBy},
+                    direction=${direction}
+                )}"
+               class="btn btn-secondary">
+                <i class="fas fa-file-csv"></i> Export CSV
+            </a>
+            <a href="/produits/nouveau" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Ajouter un produit
+            </a>
+        </div>
     </div>
 
     <!-- Filtres de recherche -->
@@ -222,6 +233,21 @@
             </tr>
             </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:each="i : ${#numbers.sequence(0, totalPages-1)}"
+               th:href="@{/produits(
+                    page=${i},
+                    search=${search},
+                    typeFilter=${typeFilter},
+                    sortBy=${sortBy},
+                    direction=${direction}
+               )}"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active'">
+            </a>
+        </div>
 
         <!-- État vide -->
         <div th:if="${produits == null or produits.isEmpty()}" class="empty-state">

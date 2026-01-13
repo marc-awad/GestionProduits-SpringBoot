@@ -3,15 +3,18 @@ package com.example.gestion_the.controllers;
 import com.example.gestion_the.models.Produit;
 import com.example.gestion_the.services.ProduitService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Controller
 @RequestMapping("/produits")
@@ -25,41 +28,27 @@ public class ProduitController {
 
     @GetMapping
     public String listeProduits(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String typeFilter,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false, defaultValue = "asc") String direction,
-            Model model) {
+            @RequestParam(defaultValue = "asc") String direction,
+            Model model
+    ) {
 
-        List<Produit> produits = new ArrayList<>();
+        Page<Produit> pageProduits = produitService.getProduitsPaged(
+                search, typeFilter, page, size, sortBy, direction
+        );
 
-        try {
-            if (search != null && !search.trim().isEmpty() && typeFilter != null && !typeFilter.trim().isEmpty()) {
-                produits = produitService.findByNomAndTypeThe(search, typeFilter);
-            } else if (search != null && !search.trim().isEmpty()) {
-                produits = produitService.findByNom(search);
-            } else if (typeFilter != null && !typeFilter.trim().isEmpty()) {
-                produits = produitService.findByTypeThe(typeFilter);
-            } else {
-                produits = produitService.getAllProduits();
-            }
+        model.addAttribute("produits", pageProduits.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageProduits.getTotalPages());
 
-            if (sortBy != null && !sortBy.trim().isEmpty()) {
-                boolean ascending = "asc".equalsIgnoreCase(direction);
-                produits = sortProduits(produits, sortBy, ascending);
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des produits : " + e.getMessage());
-            model.addAttribute("errorMessage", "Erreur lors du chargement des produits");
-        }
-
-        model.addAttribute("produits", produits);
         model.addAttribute("search", search);
         model.addAttribute("typeFilter", typeFilter);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
-
-        System.out.println("DEBUG: Nombre de produits chargés = " + produits.size());
 
         return "index";
     }
@@ -79,78 +68,64 @@ public class ProduitController {
     }
 
     @PostMapping("/sauvegarder")
-    public String sauvegarderProduit(@Valid @ModelAttribute Produit produit,
-                                     BindingResult bindingResult,
-                                     RedirectAttributes redirectAttributes,
-                                     Model model) {
+    public String sauvegarderProduit(
+            @Valid @ModelAttribute Produit produit,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
 
         if (bindingResult.hasErrors()) {
             return "formulaire";
         }
 
-        try {
-            produitService.saveProduit(produit);
-
-            if (produit.getId() == null) {
-                redirectAttributes.addFlashAttribute("successMessage", "Produit ajouté avec succès !");
-            } else {
-                redirectAttributes.addFlashAttribute("successMessage", "Produit modifié avec succès !");
-            }
-
-            return "redirect:/produits";
-
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la sauvegarde : " + e.getMessage());
-            return "redirect:/produits";
-        }
-    }
-
-    @GetMapping("/supprimer/{id}")
-    public String supprimerProduit(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-
-        try {
-            if (!produitService.getProduitById(id).isPresent()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Produit introuvable avec l'id : " + id);
-                return "redirect:/produits";
-            }
-
-            produitService.deleteProduit(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Produit supprimé avec succès !");
-
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la suppression : " + e.getMessage());
-        }
-
+        produitService.saveProduit(produit);
+        redirectAttributes.addFlashAttribute("successMessage", "Produit enregistré avec succès !");
         return "redirect:/produits";
     }
 
     @PostMapping("/supprimer/{id}")
-    public String supprimerProduitPost(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        return supprimerProduit(id, redirectAttributes);
+    public String supprimerProduit(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        produitService.deleteProduit(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Produit supprimé avec succès !");
+        return "redirect:/produits";
     }
 
-    private List<Produit> sortProduits(List<Produit> produits, String sortBy, boolean ascending) {
-        return produits.stream()
-                .sorted((p1, p2) -> {
-                    int comparison = 0;
-                    switch (sortBy.toLowerCase()) {
-                        case "nom":
-                            comparison = p1.getNom().compareToIgnoreCase(p2.getNom());
-                            break;
-                        case "prix":
-                            comparison = p1.getPrix().compareTo(p2.getPrix());
-                            break;
-                        case "quantitestock":
-                            comparison = p1.getQuantiteStock().compareTo(p2.getQuantiteStock());
-                            break;
-                        case "datereception":
-                            comparison = p1.getDateReception().compareTo(p2.getDateReception());
-                            break;
-                        default:
-                            comparison = 0;
-                    }
-                    return ascending ? comparison : -comparison;
-                })
-                .collect(Collectors.toList());
+    @GetMapping("/export")
+    public void exportCsv(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String typeFilter,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            HttpServletResponse response
+    ) throws IOException {
+
+        response.setContentType("text/csv");
+        response.setHeader(
+                "Content-Disposition",
+                "attachment; filename=produits.csv"
+        );
+
+        List<Produit> produits = produitService
+                .getProduitsPaged(search, typeFilter, 0, Integer.MAX_VALUE, sortBy, direction)
+                .getContent();
+
+        PrintWriter writer = response.getWriter();
+        writer.println("ID,Nom,Type,Origine,Prix,Stock,Date réception");
+
+        for (Produit p : produits) {
+            writer.printf(
+                    "%d,%s,%s,%s,%s,%d,%s%n",
+                    p.getId(),
+                    p.getNom(),
+                    p.getTypeThe(),
+                    p.getOrigine(),
+                    p.getPrix(),
+                    p.getQuantiteStock(),
+                    p.getDateReception()
+            );
+        }
+
+        writer.flush();
     }
+
 }
