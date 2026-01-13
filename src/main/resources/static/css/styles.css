@@ -1,4 +1,6 @@
-/* Base & Reset */
+/* ============================================
+   BASE & RESET
+   ============================================ */
 * {
     margin: 0;
     padding: 0;
@@ -12,14 +14,18 @@ body {
     line-height: 1.6;
 }
 
-/* Layout */
+/* ============================================
+   LAYOUT
+   ============================================ */
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Header */
+/* ============================================
+   HEADER
+   ============================================ */
 header {
     background-color: #1a1a1a;
     color: white;
@@ -34,13 +40,20 @@ header h1 {
     letter-spacing: 1px;
 }
 
+header h1 i {
+    margin-right: 10px;
+    color: #4caf50;
+}
+
 header p {
     margin-top: 8px;
     color: #ccc;
     font-size: 0.95rem;
 }
 
-/* Alerts */
+/* ============================================
+   ALERTS
+   ============================================ */
 .alert {
     padding: 15px 20px;
     border-radius: 4px;
@@ -49,6 +62,11 @@ header p {
     align-items: center;
     justify-content: space-between;
     animation: slideIn 0.3s ease-out;
+}
+
+.alert i {
+    margin-right: 10px;
+    font-size: 1.2rem;
 }
 
 .alert-success {
@@ -79,7 +97,9 @@ header p {
     opacity: 1;
 }
 
-/* Buttons */
+/* ============================================
+   BUTTONS
+   ============================================ */
 .btn {
     padding: 12px 24px;
     border: none;
@@ -87,9 +107,15 @@ header p {
     cursor: pointer;
     font-size: 0.95rem;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     transition: all 0.3s ease;
     font-weight: 500;
+}
+
+.btn i {
+    font-size: 1rem;
 }
 
 .btn-primary {
@@ -150,7 +176,21 @@ header p {
     font-size: 0.85rem;
 }
 
-/* Top Bar */
+/* Bouton réinitialiser avec style spécial */
+.btn-reset {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+}
+
+.btn-reset:hover {
+    background-color: #f57c00;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   TOP BAR
+   ============================================ */
 .top-bar {
     display: flex;
     justify-content: space-between;
@@ -164,7 +204,14 @@ header p {
     color: #1a1a1a;
 }
 
-/* Forms */
+.top-bar h2 i {
+    margin-right: 10px;
+    color: #4caf50;
+}
+
+/* ============================================
+   FORMS
+   ============================================ */
 .search-filter-section {
     background: white;
     padding: 25px;
@@ -192,25 +239,74 @@ header p {
     color: #555;
 }
 
+.form-group label i {
+    margin-right: 5px;
+    color: #666;
+}
+
 .form-control {
     padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.95rem;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
 .form-control:focus {
     outline: none;
     border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+/* Mise en évidence des filtres actifs */
+.form-control.active-filter {
+    border-color: #4caf50;
+    background-color: #f1f8f4;
+    font-weight: 500;
 }
 
 .form-actions {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
-/* Tables */
+/* Style pour le formulaire de produit */
+.product-form {
+    max-width: 800px;
+}
+
+.product-form .form-group {
+    margin-bottom: 20px;
+}
+
+.required {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.form-control.error {
+    border-color: #d32f2f;
+    background-color: #ffebee;
+}
+
+.form-text {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
 .table-container {
     background: white;
     padding: 25px;
@@ -242,7 +338,7 @@ th.sortable {
     cursor: pointer;
     user-select: none;
     position: relative;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 th.sortable:hover {
@@ -255,6 +351,22 @@ th.sortable::after {
     right: 8px;
     opacity: 0.5;
     font-size: 0.8rem;
+}
+
+/* Indicateurs visuels pour le tri actif */
+th.sortable.sort-active {
+    background-color: #4caf50;
+    font-weight: 600;
+}
+
+th.sortable.sort-active::after {
+    content: '';
+}
+
+th.sortable .sort-icon {
+    margin-left: 8px;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s;
 }
 
 td {
@@ -270,13 +382,19 @@ tbody tr:hover {
     background-color: #fafafa;
 }
 
-/* Badges */
+/* ============================================
+   BADGES
+   ============================================ */
 .badge {
     display: inline-block;
     padding: 4px 10px;
     border-radius: 3px;
     font-size: 0.85rem;
     font-weight: 500;
+}
+
+.badge i {
+    margin-right: 5px;
 }
 
 .badge-type {
@@ -302,18 +420,28 @@ tbody tr:hover {
     border: 1px solid #c62828;
 }
 
-/* Actions */
+/* ============================================
+   ACTIONS
+   ============================================ */
 .actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-/* Empty State */
+/* ============================================
+   EMPTY STATE
+   ============================================ */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
     color: #999;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
 }
 
 .empty-state h3 {
@@ -328,7 +456,9 @@ tbody tr:hover {
     margin-bottom: 20px;
 }
 
-/* Modal */
+/* ============================================
+   MODAL
+   ============================================ */
 .modal {
     display: none;
     position: fixed;
@@ -367,6 +497,10 @@ tbody tr:hover {
     align-items: center;
 }
 
+.modal-header i {
+    margin-right: 10px;
+}
+
 .modal-header h3 {
     font-size: 1.2rem;
     font-weight: 500;
@@ -381,6 +515,10 @@ tbody tr:hover {
     line-height: 1.6;
 }
 
+.modal-body i {
+    margin-right: 8px;
+}
+
 .modal-footer {
     padding: 20px;
     border-top: 1px solid #eee;
@@ -389,16 +527,35 @@ tbody tr:hover {
     gap: 10px;
 }
 
-/* Info Text */
+/* ============================================
+   INFO TEXT & RESULTS COUNT
+   ============================================ */
 .info-text {
     margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid #eee;
     color: #666;
     font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* Footer */
+.results-count {
+    font-weight: 600;
+    color: #4caf50;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.results-count i {
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
 footer {
     text-align: center;
     padding: 30px 0;
@@ -407,7 +564,9 @@ footer {
     font-size: 0.9rem;
 }
 
-/* Animations */
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 @keyframes slideIn {
     from {
         transform: translateY(-20px);
@@ -435,7 +594,9 @@ footer {
     }
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
     .top-bar {
         flex-direction: column;
@@ -453,5 +614,11 @@ footer {
 
     .actions {
         flex-direction: column;
+    }
+
+    .info-text {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
     }
 }
